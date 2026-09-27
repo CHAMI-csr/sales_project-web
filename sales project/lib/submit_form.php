@@ -30,7 +30,8 @@ if (isset($_POST['submit'])) {
         exit();
     }
 
-    if (!isset($_FILES['bcertificate']) || $bcertificate_name == "" || $bcertificate_type != "application/pdf") {
+    $allowed_cert_types = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
+    if (!isset($_FILES['bcertificate']) || $bcertificate_name == "" || !in_array($bcertificate_type, $allowed_cert_types)) {
         header("location:../pages/Business_reg.php?error=invalid_file");
         exit();
     }
@@ -67,6 +68,13 @@ if (isset($_POST['submit'])) {
         header("location:../pages/Business_reg.php?error=already_registered");
         exit();
     } else {
+        $bname = mysqli_real_escape_string($con, $bname);
+        $date = mysqli_real_escape_string($con, $date);
+        $bregid = mysqli_real_escape_string($con, $bregid);
+        $bnumber = mysqli_real_escape_string($con, $bnumber);
+        $btype_str = mysqli_real_escape_string($con, $btype_str);
+        $bcertificate_name = mysqli_real_escape_string($con, $bcertificate_name);
+        $blogo_name = mysqli_real_escape_string($con, $blogo_name);
         $query = "INSERT INTO businessregistration(user_id,bname, date, bregid, bnumber, btype, bcertificate, blogo) VALUES('$user_id','$bname', '$date', '$bregid', '$bnumber', '$btype_str', '$bcertificate_name', '$blogo_name')";
         $result = mysqli_query($con, $query);
 

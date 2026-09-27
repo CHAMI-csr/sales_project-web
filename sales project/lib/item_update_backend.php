@@ -7,44 +7,47 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-$user_id = $_SESSION['user_id'];
+$user_id = mysqli_real_escape_string($con, $_SESSION['user_id']);
 
 if (isset($_POST['update'])) {
 
-    $pid = $_POST['pid'];
-    $itemName = $_POST['itemName'];
-    $itemCategory =  $_POST['itemCategory'];
-    $itemPrice =$_POST['itemPrice'];
-    $itemDescription = $_POST['itemDescription'];
-    $itemQty =  $_POST['itemQty'];
-    $old_image =  $_POST['old_image'];
-    $new_image_name = $old_image; // Default to old image name
+    $pid             = mysqli_real_escape_string($con, $_POST['pid']             ?? '');
+    $itemName        = mysqli_real_escape_string($con, $_POST['itemName']        ?? '');
+    $itemCategory    = mysqli_real_escape_string($con, $_POST['itemCategory']    ?? '');
+    $itemPrice       = mysqli_real_escape_string($con, $_POST['itemPrice']       ?? '');
+    $itemDescription = mysqli_real_escape_string($con, $_POST['itemDescription'] ?? '');
+    $itemQty         = mysqli_real_escape_string($con, $_POST['itemQty']         ?? '');
+    $old_image       = mysqli_real_escape_string($con, $_POST['old_image']       ?? '');
+    $new_image_name  = $old_image; // Default to old image
 
     // Check if a new image was uploaded
     if (isset($_FILES['itemImage']) && $_FILES['itemImage']['error'] === UPLOAD_ERR_OK) {
-        $img_name = $_FILES['itemImage']['name'];
-        $tmp_name = $_FILES['itemImage']['tmp_name'];
-        $img_ex = pathinfo($img_name, PATHINFO_EXTENSION);
+        $img_name  = $_FILES['itemImage']['name'];
+        $tmp_name  = $_FILES['itemImage']['tmp_name'];
+        $img_ex    = pathinfo($img_name, PATHINFO_EXTENSION);
         $img_ex_lc = strtolower($img_ex);
-        $allowed_exs = array("jpg", "jpeg", "png", "gif");
+        $allowed_exs = ["jpg", "jpeg", "png", "gif"];
 
         if (in_array($img_ex_lc, $allowed_exs)) {
             $new_image_name = uniqid("IMG-", true) . '.' . $img_ex_lc;
             $image_upload_path = '../images/items/' . $new_image_name;
 
             if (move_uploaded_file($tmp_name, $image_upload_path)) {
-                if (!empty($old_image) && file_exists('../images/items/' . $old_image) && $old_image !== 'default_item_image.png') {
-                    unlink('../images/items/' . $old_image);
+                $raw_old = $_POST['old_image'] ?? '';
+                if (!empty($raw_old) && file_exists('../images/items/' . $raw_old) && $raw_old !== 'default_item_image.png') {
+                    unlink('../images/items/' . $raw_old);
                 }
             } else {
-                echo "Error uploading the new image.";
+                header("Location: ../pages/Supplier_Dashboard.php?error=upload_error");
                 exit();
             }
         } else {
-            echo "You can't upload files of this type.";
+            header("Location: ../pages/Supplier_Dashboard.php?error=invalid_image_type");
             exit();
         }
     }
+
+    $new_image_escaped = mysqli_real_escape_string($con, $new_image_name);
 
     $query = "UPDATE production SET 
                 pname = '$itemName', 
@@ -52,16 +55,18 @@ if (isset($_POST['update'])) {
                 price = '$itemPrice', 
                 discription = '$itemDescription', 
                 qty = '$itemQty', 
-                image = '$new_image_name' 
+                image = '$new_image_escaped' 
               WHERE pid = '$pid' AND user_id = '$user_id'";
 
     if (mysqli_query($con, $query)) {
         header("Location: ../pages/Supplier_Dashboard.php?update=success");
         exit();
     } else {
-        echo "Error updating record: " . mysqli_error($con);
+        header("Location: ../pages/Supplier_Dashboard.php?error=update_error");
+        exit();
     }
 } else {
-    echo "Invalid request.";
+    header("Location: ../pages/Supplier_Dashboard.php");
+    exit();
 }
-?>
+?>

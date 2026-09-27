@@ -152,23 +152,21 @@ if ($result) {
             <tbody>
                 <?php
                 foreach ($products as $row) {
-                    $user_id     = $row['user_id'];
-                    $pid         = $row['pid'];
-                    $pname       = $row['pname'];
-                    $price       = floatval($row['price']);
-                    $discription = $row['discription'];
-                    $image       = $row['image'];
-                    $qty         = intval($row['qty']);
-                    $categories  = $row['categories'];
-                    $date        = $row['Add_date'];
+                    $user_id     = $row['user_id']    ?? '';
+                    $pid         = $row['pid']         ?? '';
+                    $pname       = $row['pname']       ?? '';
+                    $price       = floatval($row['price'] ?? 0);
+                    $discription = $row['discription'] ?? '';
+                    $image       = $row['image']       ?? '';
+                    $qty         = intval($row['qty']  ?? 0);
+                    $categories  = $row['categories']  ?? '';
+                    $date        = $row['Add_date']    ?? '';
 
                     $bname = 'N/A';
-                    $query = "SELECT * FROM businessregistration WHERE user_id='$user_id'";
-                    $user_result = mysqli_query($con, $query);
-                    if ($user_result) {
-                        while ($user_row = mysqli_fetch_assoc($user_result)) {
-                            $bname = $user_row["bname"];
-                        }
+                    $safe_uid = mysqli_real_escape_string($con, $user_id);
+                    $user_result = mysqli_query($con, "SELECT bname FROM businessregistration WHERE user_id='$safe_uid' LIMIT 1");
+                    if ($user_result && $user_row = mysqli_fetch_assoc($user_result)) {
+                        $bname = $user_row['bname'] ?? 'N/A';
                     }
 
                     if ($qty <= 0) {
@@ -193,10 +191,10 @@ if ($result) {
                     
                     <td class="whitespace-nowrap">
                         <img class="product-thumb previewable-image"
-                            src="../../images/items/<?= htmlspecialchars($image) ?>"
+                            src="<?= STORE_URL ?>/images/items/<?= rawurlencode($image) ?>"
                             alt="<?= htmlspecialchars($pname) ?>"
                             data-title="<?= htmlspecialchars($pname) ?>"
-                            onerror="this.src='../../images/items/default.png'; this.onerror=null;">
+                            onerror="this.onerror=null; this.src='https://placehold.co/48x48/1e293b/64748b?text=IMG';">
                     </td>
 
                     <td class="max-w-xs">

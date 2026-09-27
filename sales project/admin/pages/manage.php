@@ -127,23 +127,21 @@ if ($result) {
             <tbody>
                 <?php
                 foreach ($suppliers as $row) {
-                    $user_id      = $row['user_id'];
-                    $bname        = $row['bname'];
-                    $date         = $row['date'];
-                    $bregid       = $row['bregid'];
-                    $bnumber      = $row['bnumber'];
-                    $btype        = $row['btype'];
-                    $bcertificate = $row['bcertificate'];
-                    $blogo        = $row['blogo'];
-                    $approve      = $row['approve'];
+                    $user_id      = $row['user_id']      ?? '';
+                    $bname        = $row['bname']        ?? '';
+                    $date         = $row['date']         ?? '';
+                    $bregid       = $row['bregid']       ?? '';
+                    $bnumber      = $row['bnumber']      ?? '';
+                    $btype        = $row['btype']        ?? '';
+                    $bcertificate = $row['bcertificate'] ?? '';
+                    $blogo        = $row['blogo']        ?? '';
+                    $approve      = $row['approve']      ?? '0';
 
                     $user_email = 'N/A';
-                    $query = "SELECT * FROM users WHERE user_id='$user_id'";
-                    $user_result = mysqli_query($con, $query);
-                    if ($user_result) {
-                        while ($user_row = mysqli_fetch_assoc($user_result)) {
-                            $user_email = $user_row['email'];
-                        }
+                    $safe_uid = mysqli_real_escape_string($con, $user_id);
+                    $user_result = mysqli_query($con, "SELECT email FROM users WHERE user_id='$safe_uid' LIMIT 1");
+                    if ($user_result && $user_row = mysqli_fetch_assoc($user_result)) {
+                        $user_email = $user_row['email'] ?? 'N/A';
                     }
 
                     $is_approved = ($approve == '1');
@@ -156,10 +154,10 @@ if ($result) {
                     
                     <td class="whitespace-nowrap">
                         <img class="product-thumb previewable-image"
-                            src="../../images/logo/<?= htmlspecialchars($blogo) ?>"
+                            src="<?= STORE_URL ?>/images/logo/<?= rawurlencode($blogo) ?>"
                             alt="<?= htmlspecialchars($bname) ?> Logo"
                             data-title="<?= htmlspecialchars($bname) ?> Logo"
-                            onerror="this.src='../../images/logo/default-logo.png'; this.onerror=null;">
+                            onerror="this.onerror=null; this.src='https://placehold.co/48x48/1e293b/64748b?text=<?= rawurlencode(strtoupper(substr($bname,0,2))) ?>';">
                     </td>
 
                     <td class="whitespace-nowrap">

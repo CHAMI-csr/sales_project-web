@@ -145,49 +145,41 @@ $avg_order_value = ($total_orders > 0) ? ($total_income / $total_orders) : 0;
             <tbody>
                 <?php
                 foreach ($history_rows as $row) {
-                    $user_id  = $row['user_id'];
-                    $pname    = $row['pnames'];
-                    $price    = floatval($row['totalprice']);
-                    $qty      = intval($row['qty']);
-                    $order_id = $row['orderid'];
-                    $date     = $row['date'];
-                    $pid      = $row['pid'];
+                    $user_id  = $row['user_id']    ?? '';
+                    $pname    = $row['pnames']      ?? '';
+                    $price    = floatval($row['totalprice'] ?? 0);
+                    $qty      = intval($row['qty']  ?? 0);
+                    $order_id = $row['orderid']     ?? '';
+                    $date     = $row['date']        ?? '';
+                    $pid      = $row['pid']         ?? '';
 
                     $seller_name   = 'Unknown';
                     $business_name = 'Unknown';
 
-                    $query = "SELECT * FROM production WHERE pid='$pid'";
-                    $product_result = mysqli_query($con, $query);
-                    if ($product_result) {
-                        while ($product_row = mysqli_fetch_assoc($product_result)) {
-                            $seller_id = $product_row['user_id'];
+                    $safe_pid = mysqli_real_escape_string($con, $pid);
+                    $product_result = mysqli_query($con, "SELECT user_id FROM production WHERE pid='$safe_pid' LIMIT 1");
+                    if ($product_result && $product_row = mysqli_fetch_assoc($product_result)) {
+                        $seller_id = $product_row['user_id'];
+                        $safe_sid  = mysqli_real_escape_string($con, $seller_id);
 
-                            $query = "SELECT * FROM users WHERE user_id='$seller_id'";
-                            $seller_result = mysqli_query($con, $query);
-                            if ($seller_result) {
-                                while ($seller_row = mysqli_fetch_assoc($seller_result)) {
-                                    $seller_name = $seller_row['username'];
-                                }
-                            }
-                            $query = "SELECT * FROM businessregistration WHERE user_id='$seller_id'";
-                            $business_result = mysqli_query($con, $query);
-                            if ($business_result) {
-                                while ($business_row = mysqli_fetch_assoc($business_result)) {
-                                    $business_name = $business_row['bname'];
-                                }
-                            }
+                        $seller_result = mysqli_query($con, "SELECT username FROM users WHERE user_id='$safe_sid' LIMIT 1");
+                        if ($seller_result && $seller_row = mysqli_fetch_assoc($seller_result)) {
+                            $seller_name = $seller_row['username'] ?? 'Unknown';
+                        }
+
+                        $business_result = mysqli_query($con, "SELECT bname FROM businessregistration WHERE user_id='$safe_sid' LIMIT 1");
+                        if ($business_result && $business_row = mysqli_fetch_assoc($business_result)) {
+                            $business_name = $business_row['bname'] ?? 'Unknown';
                         }
                     }
 
                     $user_name = 'Customer';
-                    $email = 'N/A';
-                    $query = "SELECT * FROM users WHERE user_id='$user_id'";
-                    $user_result = mysqli_query($con, $query);
-                    if ($user_result) {
-                        while ($user_row = mysqli_fetch_assoc($user_result)) {
-                            $user_name = $user_row["username"];
-                            $email     = $user_row["email"];
-                        }
+                    $email     = 'N/A';
+                    $safe_uid  = mysqli_real_escape_string($con, $user_id);
+                    $user_result = mysqli_query($con, "SELECT username, email FROM users WHERE user_id='$safe_uid' LIMIT 1");
+                    if ($user_result && $user_row = mysqli_fetch_assoc($user_result)) {
+                        $user_name = $user_row['username'] ?? 'Customer';
+                        $email     = $user_row['email']    ?? 'N/A';
                     }
                 ?>
                 <tr data-username="<?= htmlspecialchars(strtolower($user_name)) ?>"

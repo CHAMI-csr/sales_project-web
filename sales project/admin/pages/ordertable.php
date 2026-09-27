@@ -142,25 +142,30 @@ if ($result) {
             <tbody>
                 <?php
                 foreach ($orders as $row) {
-                    $user_id     = $row['user_id'];
-                    $pid         = $row['pid'];
-                    $pname       = $row['pname'];
-                    $price       = floatval($row['price']);
-                    $discription = $row['discription'];
-                    $image       = $row['image'];
-                    $qty         = intval($row['qty']);
-                    $categories  = $row['categories'];
-                    $date        = $row['orderdate'];
+                    $user_id     = $row['user_id']     ?? '';
+                    $pid         = $row['pid']         ?? '';
+                    $pname       = $row['pname']       ?? 'Unknown Product';
+                    $price       = floatval($row['price']  ?? 0);
+                    $discription = $row['discription'] ?? '';
+                    $qty         = intval($row['qty']  ?? 0);
+                    $categories  = $row['categories']  ?? '';
+                    $date        = $row['orderdate']   ?? '';
+
+                    // image is not stored in ordertable — fetch from production by pid
+                    $image = 'default.png';
+                    $safe_pid = mysqli_real_escape_string($con, $pid);
+                    $img_result = mysqli_query($con, "SELECT image FROM production WHERE pid='$safe_pid' LIMIT 1");
+                    if ($img_result && $img_row = mysqli_fetch_assoc($img_result)) {
+                        $image = $img_row['image'] ?? 'default.png';
+                    }
 
                     $user_name = 'Customer';
                     $email = 'N/A';
-                    $query = "SELECT * FROM users WHERE user_id='$user_id'";
-                    $user_result = mysqli_query($con, $query);
-                    if ($user_result) {
-                        while ($user_row = mysqli_fetch_assoc($user_result)) {
-                            $user_name = $user_row["username"];
-                            $email     = $user_row["email"];
-                        }
+                    $safe_uid = mysqli_real_escape_string($con, $user_id);
+                    $user_result = mysqli_query($con, "SELECT username, email FROM users WHERE user_id='$safe_uid' LIMIT 1");
+                    if ($user_result && $user_row = mysqli_fetch_assoc($user_result)) {
+                        $user_name = $user_row['username'] ?? 'Customer';
+                        $email     = $user_row['email']    ?? 'N/A';
                     }
                 ?>
                 <tr data-username="<?= htmlspecialchars(strtolower($user_name)) ?>"
@@ -172,13 +177,13 @@ if ($result) {
                     <td class="whitespace-nowrap">
                         <div class="flex items-center gap-3">
                             <img class="product-thumb previewable-image"
-                                src="../../images/items/<?= htmlspecialchars($image) ?>"
+                                src="<?= STORE_URL ?>/images/items/<?= rawurlencode($image) ?>"
                                 alt="<?= htmlspecialchars($pname) ?>"
                                 data-title="<?= htmlspecialchars($pname) ?>"
-                                onerror="this.src='../../images/items/default.png'; this.onerror=null;">
+                                onerror="this.onerror=null; this.src='https://placehold.co/48x48/1e293b/64748b?text=IMG';">
                             <div>
                                 <div class="font-medium text-white text-sm hover:text-blue-400 transition cursor-pointer"
-                                     onclick="showImageModal('../../images/items/<?= htmlspecialchars($image) ?>', '<?= htmlspecialchars(addslashes($pname)) ?>')">
+                                     onclick="showImageModal('<?= STORE_URL ?>/images/items/<?= rawurlencode($image) ?>', '<?= htmlspecialchars(addslashes($pname)) ?>')">
                                     <?= htmlspecialchars($pname) ?>
                                 </div>
                                 <div class="text-xs text-slate-500 font-mono">PID: #<?= htmlspecialchars($pid) ?></div>

@@ -1,4 +1,8 @@
-<?php session_start(); ?>
+<?php 
+session_start();
+define('STORE_URL', 'http://sales-project.test');
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 

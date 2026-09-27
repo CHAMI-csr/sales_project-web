@@ -1,141 +1,293 @@
-<?php include '../include/header.php'; ?>
-<link rel="stylesheet" href="../css/alert.css">
+<?php 
+include '../include/header.php'; 
+?>
 
-<div class="h-[100rem]">
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
-        <?php
-        $query = "SELECT * FROM production WHERE categories='Chargers' OR categories='Backcovers'";
-        $result = mysqli_query($con, $query);
-        while ($row = mysqli_fetch_assoc($result)) {
-            $pname = $row['pname'];
-            $price = $row['price'];
-            $discription = $row['discription'];
-            $image = $row['image'];
-            $qty = $row['qty'];
-            $categories = $row['categories'];
-            $pid = $row['pid'];
-            ?>
-            <div
-                class="product-card bg-white rounded-lg shadow-xl overflow-hidden transition-transform duration-300 ease-in-out hover:scale-105">
-                <div class="relative">
-                    <img class="w-full h-32 object-cover rounded-t-lg" src="../images/items/<?= $image ?>" alt="Cool Gadget"
-                        onerror="this.onerror=null;this.src='https://placehold.co/400x300/e5e7eb/6b7280?text=Image+Not+Found';">
-                    <?php if ($qty == 0) { ?>
-                        <span
-                            class="absolute top-1 left-1 bg-red-600 text-white text-[0.6rem] font-semibold px-1 py-0.5 rounded-full shadow-lg">Out
-                            of Stock</span>
-                    <?php } else { ?>
-                        <span
-                            class="absolute top-1 left-1 bg-indigo-600 text-white text-[0.6rem] font-semibold px-1 py-0.5 rounded-full shadow-lg">Available</span>
-                    <?php } ?>
-                </div>
-
-                <div class="p-3">
-                    <h2 class="text-base font-bold text-gray-900 mb-0.5"><?= $pname ?></h2>
-                    <h3 class="text-xs font-semibold text-indigo-500 mb-1 uppercase tracking-wide"><?= $categories ?></h3>
-                    <p class="text-gray-600 mb-2 text-[0.6rem]">
-                        <?= $discription ?>
-                    </p>
-
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-xl font-bold text-gray-900">LKR.<?= $price ?></span>
-                        <div class="flex items-center text-yellow-400">
-                            <svg class="w-3 h-3 fill-current" viewBox="0 0 20 20">
-                                <path
-                                    d="M10 15l-5.878 3.09 1.123-6.545L.489 7.41l6.572-.955L10 1l2.939 5.455 6.572.955-4.756 4.135 1.123 6.545z" />
-                            </svg>
-                            <span class="ml-0.5 text-gray-700 text-xs font-semibold">4.8</span>
-                        </div>
-                    </div>
-
-                    <form action="../lib/cart_backend.php" method="post">
-                        <div class="flex items-center justify-between mt-1 mb-3">
-                            <span class="text-xs font-medium text-gray-700">Quantity</span>
-                            <div class="flex items-center space-x-1">
-                                <button
-                                    class="decrement-btn bg-gray-200 text-gray-800 px-1.5 py-0.5 rounded-full text-xs hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                                    type="button"
-                                    onclick="var qtyInput = document.getElementById('qty-<?= $row['id'] ?>'); if(qtyInput.value > 1) qtyInput.value--;">-</button>
-                                <input id="qty-<?= $row['id'] ?>" name="qty" type="number"
-                                    class="quantity-display text-sm font-semibold text-gray-900 w-10 text-center border rounded"
-                                    value="1" min="1" max="<?= $qty ?>" style="width: 2.5rem;" />
-                                <button
-                                    class="increment-btn bg-gray-200 text-gray-800 px-1.5 py-0.5 rounded-full text-xs hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
-                                    type="button"
-                                    onclick="var qtyInput = document.getElementById('qty-<?= $row['id'] ?>'); if(qtyInput.value < <?= $qty ?>) qtyInput.value++;">+</button>
-                            </div>
-                        </div>
-                        <input type="hidden" name="pid" value="<?= $pid ?>">
-                        <?php if (isset($_SESSION['user_id'])) { ?>
-                            <button
-                                class="w-full bg-indigo-600 text-white font-semibold py-1.5 px-3 rounded-full shadow-md hover:bg-indigo-700 transition duration-300 ease-in-out transform hover:-translate-y-0.5 text-xs"
-                                type="submit">
-                                Add to Cart
-                            </button>
-                        <?php } else { ?>
-                            <button onclick="showAlert('error', 'Failed', 'Please login And try again.')"
-                                class="w-full bg-indigo-600 text-white font-semibold py-1.5 px-3 rounded-full shadow-md hover:bg-indigo-700 transition duration-300 ease-in-out transform hover:-translate-y-0.5 text-xs"
-                                type="button">
-                                Add to Cart
-                            </button>
-                        <?php } ?>
-                    </form>
-                </div>
-            </div>
-        <?php } ?>
+<!-- Category Hero Banner -->
+<section class="bg-slate-900 text-white py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-6">
+    <div>
+      <!-- Breadcrumbs -->
+      <nav class="flex items-center gap-2 text-xs text-slate-400 mb-3">
+        <a href="../pages/home.php" class="hover:text-white transition-colors">Home</a>
+        <span>/</span>
+        <a href="../pages/items.php" class="hover:text-white transition-colors">Shop</a>
+        <span>/</span>
+        <span class="text-indigo-400 font-semibold">Accessories</span>
+      </nav>
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Back Covers & Chargers</h1>
+      <p class="text-slate-300 text-sm mt-2 max-w-xl">
+        Fast chargers, adapter plugs, cables, and protective phone back covers for all major devices.
+      </p>
     </div>
-    <div id="alert-container"></div>
-</div>
 
+    <!-- Quick Navigation Pills -->
+    <div class="flex flex-wrap gap-2">
+      <a href="../pages/items.php" class="px-4 py-2 rounded-full text-xs font-semibold bg-white/10 hover:bg-white/20 text-white transition-all">All Items</a>
+      <a href="../pages/phones.php" class="px-4 py-2 rounded-full text-xs font-semibold bg-white/10 hover:bg-white/20 text-white transition-all">Phones</a>
+      <a href="../pages/headphones.php" class="px-4 py-2 rounded-full text-xs font-semibold bg-white/10 hover:bg-white/20 text-white transition-all">Headphones</a>
+      <a href="../pages/backcovers.php" class="px-4 py-2 rounded-full text-xs font-bold bg-indigo-600 text-white shadow transition-all">Accessories</a>
+    </div>
+  </div>
+</section>
 
-<script>
+<!-- Filter & Search Toolbar -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-6">
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+    
+    <!-- Live Search Input -->
+    <div class="relative w-full md:w-96">
+      <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+      </svg>
+      <input type="text" id="productSearchInput" placeholder="Search by model, charger wattage, or case..."
+             class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-indigo-600 focus:bg-white transition-colors">
+    </div>
 
-    function showAlert(type, title, message) {
-        const alertContainer = document.getElementById('alert-container');
+    <!-- Sub-category Tabs & Filter Controls -->
+    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto justify-end">
+      
+      <!-- Subcategory Pills -->
+      <div class="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+        <button type="button" onclick="filterSubCat('all', this)" class="subcat-btn px-3 py-1.5 rounded-lg bg-white text-indigo-600 shadow-xs font-bold transition-all">
+          All
+        </button>
+        <button type="button" onclick="filterSubCat('chargers', this)" class="subcat-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+          Chargers
+        </button>
+        <button type="button" onclick="filterSubCat('backcovers', this)" class="subcat-btn px-3 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+          Cases
+        </button>
+      </div>
 
+      <!-- In Stock Filter Toggle -->
+      <label class="flex items-center gap-2 cursor-pointer text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3.5 py-2 rounded-xl transition-colors">
+        <input type="checkbox" id="inStockFilter" class="rounded text-indigo-600 focus:ring-indigo-500">
+        <span>In Stock Only</span>
+      </label>
 
-        const alertElement = document.createElement('div');
-        alertElement.className = `alert alert-${type}`;
+      <!-- Sort Dropdown -->
+      <select id="sortSelect" class="bg-slate-50 border border-slate-200 text-slate-700 text-xs font-semibold rounded-xl px-3.5 py-2.5 focus:outline-none focus:border-indigo-600 transition-colors">
+        <option value="default">Sort: Default</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="name-asc">Name: A to Z</option>
+      </select>
+    </div>
 
+  </div>
+</section>
 
-        let iconSvg;
-        switch (type) {
-            case 'error':
-                iconSvg = `<svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`;
-                break;
-            case 'success':
-                iconSvg = `<svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-2 15-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`;
-                break;
-            case 'info':
-            default:
-                iconSvg = `<svg class="alert-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm-1 15h2v-2h-2v2zm0-4h2V7h-2v6z"/></svg>`;
-                break;
-        }
+<!-- Products Catalog Grid -->
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  
+  <div id="productGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    <?php
+    $query = "SELECT * FROM production WHERE categories='Chargers' OR categories='Backcovers' ORDER BY id DESC";
+    $result = mysqli_query($con, $query);
+    $total_items = ($result) ? mysqli_num_rows($result) : 0;
 
+    if ($total_items > 0) {
+      while ($row = mysqli_fetch_assoc($result)) {
+        $pname = $row['pname'];
+        $price = (float)$row['price'];
+        $discription = $row['discription'];
+        $image = !empty($row['image']) ? $row['image'] : 'backcover.jpg';
+        $qty = (int)$row['qty'];
+        $categories = $row['categories'];
+        $pid = $row['pid'];
+        ?>
+        <div class="product-item-card product-card rounded-2xl flex flex-col overflow-hidden border border-slate-200 bg-white hover:shadow-lg transition-all duration-300"
+             data-name="<?= htmlspecialchars(strtolower($pname)) ?>"
+             data-desc="<?= htmlspecialchars(strtolower($discription)) ?>"
+             data-cat="<?= htmlspecialchars(strtolower($categories)) ?>"
+             data-price="<?= $price ?>"
+             data-stock="<?= $qty ?>">
+          
+          <!-- Image & Title Link to Details Page -->
+          <a href="../pages/product_details.php?pid=<?= urlencode($pid) ?>" class="block group">
+            <div class="product-img-wrapper aspect-[4/3] flex items-center justify-center p-4 bg-slate-50 relative border-b border-slate-100 overflow-hidden">
+              <img src="../images/items/<?= rawurlencode($image) ?>" 
+                   alt="<?= htmlspecialchars($pname) ?>"
+                   class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+                   onerror="this.src='https://placehold.co/400x300/f8fafc/64748b?text=<?= urlencode($pname) ?>';">
+              
+              <!-- Badges -->
+              <div class="absolute top-3 left-3">
+                <?php if ($qty > 0) { ?>
+                  <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-600 text-white shadow-xs">
+                    Available (<?= $qty ?>)
+                  </span>
+                <?php } else { ?>
+                  <span class="inline-block px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-rose-600 text-white shadow-xs">
+                    Out of Stock
+                  </span>
+                <?php } ?>
+              </div>
 
-        alertElement.innerHTML = `
-                ${iconSvg}
-                <div class="alert-content">
-                    <div class="alert-title">${title}</div>
-                    <div class="alert-message">${message}</div>
+              <span class="absolute top-3 right-3 px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-800 text-white uppercase tracking-wider">
+                <?= htmlspecialchars($categories) ?>
+              </span>
+            </div>
+
+            <!-- Product Info -->
+            <div class="p-4 pb-2">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-indigo-600 block mb-1">
+                <?= htmlspecialchars($categories) ?>
+              </span>
+
+              <h2 class="text-base font-bold text-slate-900 truncate mb-1 group-hover:text-indigo-600 transition-colors" title="<?= htmlspecialchars($pname) ?>">
+                <?= htmlspecialchars($pname) ?>
+              </h2>
+
+              <p class="text-xs text-slate-500 line-clamp-2 mb-2 min-h-[32px]">
+                <?= htmlspecialchars($discription) ?>
+              </p>
+            </div>
+          </a>
+
+          <!-- Product Body -->
+          <div class="px-4 pb-4 flex-1 flex flex-col justify-end">
+
+            <div>
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-base sm:text-lg font-black text-slate-900">
+                  LKR. <?= number_format($price, 2) ?>
+                </span>
+              </div>
+
+              <!-- Cart Form -->
+              <form action="../lib/cart_backend.php" method="POST" class="space-y-2">
+                <input type="hidden" name="pid" value="<?= htmlspecialchars($pid) ?>">
+                <input type="hidden" name="redirect_url" value="<?= htmlspecialchars($_SERVER['REQUEST_URI']) ?>">
+
+                <div class="flex items-center gap-2">
+                  <div class="flex items-center border border-slate-200 rounded-xl bg-slate-50 px-2 py-1">
+                    <button type="button" onclick="var el = document.getElementById('qty-<?= $pid ?>'); if(el.value > 1) el.value--;"
+                            class="w-6 h-6 flex items-center justify-center text-slate-600 hover:text-indigo-600 font-bold text-sm select-none">-</button>
+                    <input type="number" id="qty-<?= $pid ?>" name="qty" value="1" min="1" max="<?= max(1, $qty) ?>"
+                           class="w-8 text-center text-xs font-bold bg-transparent border-0 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none">
+                    <button type="button" onclick="var el = document.getElementById('qty-<?= $pid ?>'); if(el.value < <?= $qty ?>) el.value++;"
+                            class="w-6 h-6 flex items-center justify-center text-slate-600 hover:text-indigo-600 font-bold text-sm select-none">+</button>
+                  </div>
+
+                  <?php if ($qty > 0) { ?>
+                    <?php if (isset($_SESSION['user_id'])) { ?>
+                      <button type="submit" class="flex-1 py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                        Add to Cart
+                      </button>
+                    <?php } else { ?>
+                      <button type="button" onclick="openLoginModalDirect('signin');" class="flex-1 py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                        Add to Cart
+                      </button>
+                    <?php } ?>
+                  <?php } else { ?>
+                    <button disabled type="button" class="flex-1 py-2 px-3 rounded-xl bg-slate-100 text-slate-400 font-semibold text-xs cursor-not-allowed">
+                      Out of Stock
+                    </button>
+                  <?php } ?>
                 </div>
-            `;
+              </form>
+            </div>
+          </div>
 
-        alertContainer.appendChild(alertElement);
+        </div>
+      <?php }
+    } ?>
+  </div>
 
+  <!-- Empty Search Feedback -->
+  <div id="noResultsState" class="hidden py-16 text-center">
+    <div class="w-14 h-14 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-3 text-slate-400">
+      <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+    </div>
+    <h3 class="text-base font-bold text-slate-900 mb-1">No Accessories Found</h3>
+    <p class="text-xs text-slate-500 max-w-sm mx-auto mb-4">No products matched your search. Try adjusting your search query.</p>
+    <button type="button" onclick="document.getElementById('productSearchInput').value=''; document.getElementById('inStockFilter').checked=false; filterSubCat('all', document.querySelector('.subcat-btn'));"
+            class="px-4 py-2 rounded-xl bg-indigo-50 text-indigo-600 font-bold text-xs hover:bg-indigo-100 transition-colors">
+      Reset Filters
+    </button>
+  </div>
 
-        setTimeout(() => {
-            alertElement.classList.add('show');
-        }, 10);
+</section>
 
-        setTimeout(() => {
-            alertElement.classList.remove('show');
+<!-- Client-side Live Search, Filter & Sort Script -->
+<script>
+  let activeSubCat = 'all';
 
-            setTimeout(() => {
-                alertElement.remove();
-            }, 500);
-        }, 5000);
+  function filterSubCat(cat, btn) {
+    activeSubCat = cat.toLowerCase();
+    document.querySelectorAll('.subcat-btn').forEach(b => {
+      b.classList.remove('bg-white', 'text-indigo-600', 'shadow-xs', 'font-bold');
+      b.classList.add('text-slate-600');
+    });
+    if (btn) {
+      btn.classList.add('bg-white', 'text-indigo-600', 'shadow-xs', 'font-bold');
+      btn.classList.remove('text-slate-600');
     }
+    filterProducts();
+  }
+
+  function filterProducts() {
+    const searchVal = document.getElementById('productSearchInput').value.toLowerCase().trim();
+    const inStockOnly = document.getElementById('inStockFilter').checked;
+    const cards = Array.from(document.querySelectorAll('.product-item-card'));
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const name = card.getAttribute('data-name') || '';
+      const desc = card.getAttribute('data-desc') || '';
+      const cat = (card.getAttribute('data-cat') || '').toLowerCase();
+      const stock = parseInt(card.getAttribute('data-stock') || '0', 10);
+
+      const matchesSearch = !searchVal || name.includes(searchVal) || desc.includes(searchVal);
+      const matchesStock = !inStockOnly || stock > 0;
+      const matchesCat = (activeSubCat === 'all') || cat.includes(activeSubCat);
+
+      if (matchesSearch && matchesStock && matchesCat) {
+        card.classList.remove('hidden');
+        visibleCount++;
+      } else {
+        card.classList.add('hidden');
+      }
+    });
+
+    const noResults = document.getElementById('noResultsState');
+    if (noResults) {
+      if (visibleCount === 0) {
+        noResults.classList.remove('hidden');
+      } else {
+        noResults.classList.add('hidden');
+      }
+    }
+  }
+
+  function sortProducts() {
+    const sortVal = document.getElementById('sortSelect').value;
+    const grid = document.getElementById('productGrid');
+    const cards = Array.from(document.querySelectorAll('.product-item-card'));
+
+    cards.sort((a, b) => {
+      const priceA = parseFloat(a.getAttribute('data-price') || '0');
+      const priceB = parseFloat(b.getAttribute('data-price') || '0');
+      const nameA = a.getAttribute('data-name') || '';
+      const nameB = b.getAttribute('data-name') || '';
+
+      if (sortVal === 'price-asc') return priceA - priceB;
+      if (sortVal === 'price-desc') return priceB - priceA;
+      if (sortVal === 'name-asc') return nameA.localeCompare(nameB);
+      return 0;
+    });
+
+    cards.forEach(card => grid.appendChild(card));
+  }
+
+  document.getElementById('productSearchInput').addEventListener('input', filterProducts);
+  document.getElementById('inStockFilter').addEventListener('change', filterProducts);
+  document.getElementById('sortSelect').addEventListener('change', sortProducts);
 </script>
 
-<?php include '../include/footer.php'; ?>
+<?php 
+include '../include/footer.php'; 
+?>
